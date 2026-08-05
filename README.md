@@ -2,9 +2,15 @@
 
 An interactive look at a distribution that breaks a rule most people take for granted: the average of many samples does not always settle down.
 
+![The demo in light mode. One Cauchy draw of -2200 knocks the running mean off the chart, and thousands of samples later it still has not recovered, while the running median stays locked on the location line.](docs/hero-light.png)
+
 ## What it shows
 
 Draw random numbers from a Cauchy distribution and watch the running average. It never converges. Draw from a Normal distribution and the running average settles quickly. The Cauchy has no mean for the average to converge to, so no matter how many samples you take, one rare but enormous value can throw the average off again. The running median, on the other hand, does settle, because the median is a stable estimate of where the distribution is centered.
+
+In Normal mode the chart switches to a logarithmic sample axis and draws the 95 percent band for the running mean, which tightens like one over the square root of n while the trace threads it. The Cauchy chart has no band to draw, because the Cauchy has no variance.
+
+![Normal mode. The running mean threads a shaded 95 percent funnel that tightens as samples accumulate, on a logarithmic sample axis.](docs/normal-funnel.png)
 
 ## Why it happens
 
@@ -30,6 +36,10 @@ React, Vite, and TypeScript. The chart is drawn on a canvas with a requestAnimat
 ## Notes
 
 This is a teaching demo, not a research tool. Single Cauchy draws can be astronomically large, so the vertical axis uses a symmetric-log scale by default and marks values that fly off the chart rather than hiding them. The seeded generator is fine for a visualization but is not cryptographically secure.
+
+## Credits
+
+Built by [Cameron Scarpati](https://github.com/CameronScarpati) as a portfolio project. To go deeper, start with the [Cauchy distribution](https://en.wikipedia.org/wiki/Cauchy_distribution) and the [Law of Large Numbers](https://en.wikipedia.org/wiki/Law_of_large_numbers).
 
 ## License
 
