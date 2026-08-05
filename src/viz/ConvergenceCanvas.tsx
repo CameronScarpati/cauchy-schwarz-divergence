@@ -89,10 +89,12 @@ function sizeCanvas(
 
 interface ConvergenceCanvasProps {
   config: SimConfig
+  /* Bump to replay the current seed from sample zero. */
+  restartToken?: number
   onReadout?: (readout: Readout) => void
 }
 
-export function ConvergenceCanvas({ config, onReadout }: ConvergenceCanvasProps) {
+export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: ConvergenceCanvasProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const bgRef = useRef<HTMLCanvasElement>(null)
   const fgRef = useRef<HTMLCanvasElement>(null)
@@ -295,7 +297,7 @@ export function ConvergenceCanvas({ config, onReadout }: ConvergenceCanvasProps)
 
   const helpers = helpersRef.current
 
-  /* Full reset: the experiment itself changed. */
+  /* Full reset: the experiment itself changed, or a replay was requested. */
   const resetKey = [
     config.distribution,
     config.location,
@@ -303,6 +305,7 @@ export function ConvergenceCanvas({ config, onReadout }: ConvergenceCanvasProps)
     config.seed,
     config.runs,
     config.maxSamples,
+    restartToken,
   ].join('|')
 
   useEffect(() => {

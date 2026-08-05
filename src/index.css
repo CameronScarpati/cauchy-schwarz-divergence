@@ -83,3 +83,142 @@ main p {
   position: absolute;
   inset: 0;
 }
+
+.readouts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin-top: var(--space-3);
+  font-family: var(--font-mono);
+  font-size: var(--fs-sm);
+}
+
+.readouts div {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.readouts dt {
+  color: var(--text-muted);
+}
+
+.readouts dd {
+  min-width: 8ch;
+}
+
+.controls {
+  display: grid;
+  gap: var(--space-4);
+  margin-top: var(--space-5);
+  max-width: 420px;
+}
+
+.control {
+  display: grid;
+  gap: var(--space-1);
+}
+
+.control-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-weight: 500;
+  font-size: var(--fs-sm);
+}
+
+.control-line output {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.segmented-group {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.segmented-group legend {
+  font-weight: 500;
+  font-size: var(--fs-sm);
+  margin-bottom: var(--space-1);
+}
+
+.segmented {
+  display: inline-flex;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  overflow: hidden;
+}
+
+.segmented label {
+  display: block;
+}
+
+.segmented input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.segmented span {
+  display: block;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+  border-left: 1px solid var(--line);
+}
+
+.segmented label:first-child span {
+  border-left: none;
+}
+
+.segmented input:checked + span {
+  background: var(--text);
+  color: var(--bg);
+}
+
+.segmented input:focus-visible + span {
+  outline: var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.control-row {
+  display: flex;
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.seed-field {
+  display: grid;
+  gap: var(--space-1);
+  font-weight: 500;
+  font-size: var(--fs-sm);
+}
+
+.seed-field input {
+  font-family: var(--font-mono);
+  font-size: var(--fs-base);
+  width: 12ch;
+  padding: var(--space-1) var(--space-2);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text);
+}
+
+.controls button {
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: var(--fs-sm);
+  padding: var(--space-2) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-control);
+  background: var(--surface);
+  color: var(--text);
+  cursor: pointer;
+}
+
+.controls button:hover {
+  background: var(--bg);
+}

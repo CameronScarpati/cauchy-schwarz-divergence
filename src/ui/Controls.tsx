@@ -1,0 +1,166 @@
+import { useEffect, useState } from 'react'
+import type { SimConfig } from '../config.ts'
+
+const SPEED_STOPS = [25, 50, 100, 250, 500, 1000, 2000]
+
+interface ControlsProps {
+  config: SimConfig
+  onChange: (patch: Partial<SimConfig>) => void
+  onRestart: () => void
+  onReseed: () => void
+}
+
+export function Controls({ config, onChange, onRestart, onReseed }: ControlsProps) {
+  const [seedText, setSeedText] = useState(String(config.seed))
+
+  useEffect(() => {
+    setSeedText(String(config.seed))
+  }, [config.seed])
+
+  const commitSeed = () => {
+    const parsed = Number.parseInt(seedText, 10)
+    if (Number.isFinite(parsed) && parsed >= 0) {
+      onChange({ seed: parsed >>> 0 })
+    } else {
+      setSeedText(String(config.seed))
+    }
+  }
+
+  const speedIndex = SPEED_STOPS.indexOf(config.samplesPerSecond)
+
+  return (
+    <form className="controls" onSubmit={(event) => event.preventDefault()}>
+      <fieldset className="segmented-group">
+        <legend>Distribution</legend>
+        <div className="segmented">
+          <label>
+            <input
+              type="radio"
+              name="distribution"
+              checked={config.distribution === 'cauchy'}
+              onChange={() => onChange({ distribution: 'cauchy' })}
+            />
+            <span>Cauchy</span>
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="distribution"
+              checked={config.distribution === 'normal'}
+              onChange={() => onChange({ distribution: 'normal' })}
+            />
+            <span>Normal</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <label className="control">
+        <span className="control-line">
+          Location
+          <output>{config.location.toFixed(1)}</output>
+        </span>
+        <input
+          type="range"
+          min={-5}
+          max={5}
+          step={0.1}
+          value={config.location}
+          onChange={(event) => onChange({ location: Number(event.target.value) })}
+        />
+      </label>
+
+      <label className="control">
+        <span className="control-line">
+          Scale
+          <output>{config.scale.toFixed(1)}</output>
+        </span>
+        <input
+          type="range"
+          min={0.1}
+          max={5}
+          step={0.1}
+          value={config.scale}
+          onChange={(event) => onChange({ scale: Number(event.target.value) })}
+        />
+      </label>
+
+      <label className="control">
+        <span className="control-line">
+          Speed
+          <output>{config.samplesPerSecond} samples/s</output>
+        </span>
+        <input
+          type="range"
+          min={0}
+          max={SPEED_STOPS.length - 1}
+          step={1}
+          value={speedIndex === -1 ? 3 : speedIndex}
+          onChange={(event) =>
+            onChange({ samplesPerSecond: SPEED_STOPS[Number(event.target.value)] })
+          }
+        />
+      </label>
+
+      <label className="control">
+        <span className="control-line">
+          Overlaid runs
+          <output>{config.runs}</output>
+        </span>
+        <input
+          type="range"
+          min={1}
+          max={5}
+          step={1}
+          value={config.runs}
+          onChange={(event) => onChange({ runs: Number(event.target.value) })}
+        />
+      </label>
+
+      <fieldset className="segmented-group">
+        <legend>Vertical axis</legend>
+        <div className="segmented">
+          <label>
+            <input
+              type="radio"
+              name="ymode"
+              checked={config.yMode === 'symlog'}
+              onChange={() => onChange({ yMode: 'symlog' })}
+            />
+            <span>Symmetric log</span>
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="ymode"
+              checked={config.yMode === 'linear'}
+              onChange={() => onChange({ yMode: 'linear' })}
+            />
+            <span>Linear, clipped</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <div className="control-row">
+        <label className="seed-field">
+          <span>Seed</span>
+          <input
+            type="text"
+            inputMode="numeric"
+            value={seedText}
+            onChange={(event) => setSeedText(event.target.value)}
+            onBlur={commitSeed}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter') commitSeed()
+            }}
+          />
+        </label>
+        <button type="button" onClick={onRestart}>
+          Restart
+        </button>
+        <button type="button" onClick={onReseed}>
+          Reseed
+        </button>
+      </div>
+    </form>
+  )
+}
