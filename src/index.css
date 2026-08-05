@@ -10,6 +10,13 @@
   margin: 0;
 }
 
+/* The page never scrolls sideways; wide content scrolls inside its own
+   container. clip, not hidden, so position: sticky keeps working. */
+html,
+body {
+  overflow-x: clip;
+}
+
 body {
   font-family: var(--font-body);
   font-size: var(--fs-base);
@@ -380,6 +387,7 @@ input[type='range']::-moz-range-thumb {
 
 .control-row {
   display: flex;
+  flex-wrap: wrap;
   align-items: flex-end;
   gap: var(--space-3);
 }
