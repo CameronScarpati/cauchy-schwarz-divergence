@@ -54,11 +54,6 @@ button {
   outline-offset: var(--focus-offset);
 }
 
-::selection {
-  background: var(--normal);
-  color: var(--surface);
-}
-
 /* Page frame */
 
 .page {

@@ -162,15 +162,62 @@ export function drawTrace(
   ctx.globalAlpha = style.alpha ?? 1
   ctx.setLineDash(style.dash ?? [])
   ctx.lineJoin = 'round'
-  const path = line<number>()
-    .x((_, i) => xScale(i + 1))
-    .y((v) => yScale(v))
-    .defined((v) => Number.isFinite(v))
-    .context(ctx)
   ctx.beginPath()
-  path(values.subarray(0, count))
+  if (count > area.w * 2) {
+    decimatedPath(ctx, xScale, yScale, values, count)
+  } else {
+    const path = line<number>()
+      .x((_, i) => xScale(i + 1))
+      .y((v) => yScale(v))
+      .defined((v) => Number.isFinite(v))
+      .context(ctx)
+    path(values.subarray(0, count))
+  }
   ctx.stroke()
   ctx.restore()
+}
+
+/*
+ * Min-max envelope per pixel column once points outnumber pixels: caps the
+ * path at two points per column while preserving every spike, which stride
+ * sampling would silently drop.
+ */
+function decimatedPath(
+  ctx: CanvasRenderingContext2D,
+  xScale: NumericScale,
+  yScale: NumericScale,
+  values: Float64Array,
+  count: number,
+): void {
+  let col = Math.round(xScale(1))
+  let min = values[0]
+  let max = values[0]
+  let started = false
+  const emit = (x: number, lo: number, hi: number) => {
+    const yLo = yScale(lo)
+    if (started) ctx.lineTo(x, yLo)
+    else {
+      ctx.moveTo(x, yLo)
+      started = true
+    }
+    const yHi = yScale(hi)
+    if (yHi !== yLo) ctx.lineTo(x, yHi)
+  }
+  for (let i = 1; i < count; i++) {
+    const v = values[i]
+    if (!Number.isFinite(v)) continue
+    const x = Math.round(xScale(i + 1))
+    if (x === col) {
+      if (v < min) min = v
+      if (v > max) max = v
+      continue
+    }
+    emit(col, min, max)
+    col = x
+    min = v
+    max = v
+  }
+  emit(col, min, max)
 }
 
 export interface OffScaleEvent {
