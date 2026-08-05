@@ -3,18 +3,82 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cauchy Convergence: an interactive Cauchy distribution demo</title>
     <meta
       name="description"
-      content="An interactive demonstration of why the running mean of Cauchy samples never converges while the running median does."
+      content="An interactive demonstration of why the running mean of Cauchy samples never converges while the running median does. Seeded simulations, live chart, and the mathematics."
     />
     <meta name="author" content="Cameron Scarpati" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="theme-color" content="#F6F7F6" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#101418" media="(prefers-color-scheme: dark)" />
-    <title>Cauchy Convergence</title>
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Cauchy Convergence" />
+    <meta property="og:title" content="Cauchy Convergence: an interactive Cauchy distribution demo" />
+    <meta
+      property="og:description"
+      content="Watch the running mean of Cauchy samples refuse to settle while the running median locks on. Seeded simulations with the mathematics beside a live chart."
+    />
+    <meta property="og:image" content="/social-card.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="The Cauchy Convergence demo: a running mean trace knocked off the chart by one extreme draw while the median holds the location line."
+    />
+    <meta property="og:locale" content="en_US" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Cauchy Convergence: an interactive Cauchy distribution demo" />
+    <meta
+      name="twitter:description"
+      content="Watch the running mean of Cauchy samples refuse to settle while the running median locks on."
+    />
+    <meta name="twitter:image" content="/social-card.png" />
+
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "Cauchy Convergence",
+        "applicationCategory": "EducationalApplication",
+        "operatingSystem": "Any",
+        "isAccessibleForFree": true,
+        "description": "An interactive demonstration of why the running mean of Cauchy samples never converges while the running median does.",
+        "author": {
+          "@type": "Person",
+          "name": "Cameron Scarpati",
+          "sameAs": ["https://github.com/CameronScarpati"]
+        },
+        "about": [
+          {
+            "@type": "Thing",
+            "name": "Cauchy distribution",
+            "sameAs": "https://en.wikipedia.org/wiki/Cauchy_distribution"
+          },
+          {
+            "@type": "Thing",
+            "name": "Law of large numbers",
+            "sameAs": "https://en.wikipedia.org/wiki/Law_of_large_numbers"
+          }
+        ]
+      }
+    </script>
   </head>
   <body>
     <div id="root"></div>
+    <noscript>
+      <p>
+        Cauchy Convergence is an interactive statistics demonstration that needs JavaScript.
+        It streams seeded samples from a Cauchy or Normal distribution and animates the
+        running mean and running median: the Cauchy mean never converges because the Law of
+        Large Numbers does not apply to it, while the median locks onto the location
+        parameter. Source and explanation:
+        <a href="https://github.com/CameronScarpati/cauchy-convergence">
+          github.com/CameronScarpati/cauchy-convergence</a
+        >.
+      </p>
+    </noscript>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
