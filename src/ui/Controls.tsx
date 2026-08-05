@@ -58,7 +58,10 @@ export function Controls({ config, onChange, onRestart, onReseed }: ControlsProp
               type="radio"
               name="distribution"
               checked={config.distribution === 'cauchy'}
-              onChange={() => onChange({ distribution: 'cauchy' })}
+              /* Each distribution brings its natural axis: symlog absorbs
+                 Cauchy spikes, a tight linear frame shows the Normal
+                 mean actually settling. The toggle stays free after. */
+              onChange={() => onChange({ distribution: 'cauchy', yMode: 'symlog' })}
             />
             <span>Cauchy</span>
           </label>
@@ -67,7 +70,7 @@ export function Controls({ config, onChange, onRestart, onReseed }: ControlsProp
               type="radio"
               name="distribution"
               checked={config.distribution === 'normal'}
-              onChange={() => onChange({ distribution: 'normal' })}
+              onChange={() => onChange({ distribution: 'normal', yMode: 'linear' })}
             />
             <span>Normal</span>
           </label>

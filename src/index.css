@@ -76,17 +76,16 @@ button {
   max-width: var(--measure);
 }
 
-/* Layout: chart owns the left two thirds, the rail reads then controls */
+/* Layout: an instrument band up top, chart beside controls at matched
+   height, then the narrative flows below as a centered reading column */
 
 .layout {
   display: grid;
   grid-template-columns: minmax(0, 68fr) minmax(320px, 32fr);
-  grid-template-rows: auto auto;
   grid-template-areas:
-    'chart explainer'
-    'chart controls';
+    'chart controls'
+    'explainer explainer';
   gap: var(--space-5);
-  align-items: start;
 }
 
 /* Chart panel */
@@ -96,9 +95,6 @@ button {
   background: var(--surface);
   border: 1px solid var(--line);
   padding: var(--space-4);
-  /* Keeps the simulation in view while the rail is read or scrolled. */
-  position: sticky;
-  top: var(--space-5);
 }
 
 .chart-panel[data-distribution='cauchy'] {
@@ -138,13 +134,20 @@ button {
 
 .swatch-target {
   border-top-color: var(--target);
-  border-top-style: dashed;
+  border-top-style: dotted;
+}
+
+.swatch-band {
+  border: none;
+  height: 9px;
+  background: var(--trace);
+  opacity: 0.3;
 }
 
 .convergence-canvas {
   position: relative;
   width: 100%;
-  height: clamp(400px, 62vh, 640px);
+  height: clamp(360px, 48vh, 440px);
 }
 
 .convergence-canvas canvas {
@@ -176,28 +179,32 @@ button {
   min-width: 8ch;
 }
 
-/* Rail panels */
+/* Narrative: a borderless reading column under the instrument band */
 
 .explainer {
   grid-area: explainer;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  padding: var(--space-5);
+  justify-self: center;
+  width: 100%;
+  max-width: 68ch;
+  margin-top: var(--space-6);
 }
 
 .explainer h2 {
-  font-size: var(--fs-md);
+  font-size: var(--fs-lg);
 }
 
 .explainer h2 + p {
-  margin-top: var(--space-2);
+  margin-top: var(--space-3);
 }
 
 .explainer p + p,
-.explainer p + h2,
 .explainer .katex-display + p,
 .explainer h2 + .katex-display {
   margin-top: var(--space-4);
+}
+
+.explainer p + h2 {
+  margin-top: var(--space-7);
 }
 
 .explainer p {
@@ -385,15 +392,14 @@ button:hover {
 
   .layout {
     grid-template-columns: minmax(0, 1fr);
-    grid-template-rows: auto;
     grid-template-areas:
       'chart'
       'controls'
       'explainer';
   }
 
-  .chart-panel {
-    position: static;
+  .explainer {
+    margin-top: var(--space-4);
   }
 
   .convergence-canvas {

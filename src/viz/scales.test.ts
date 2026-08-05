@@ -54,6 +54,14 @@ describe('makeYScale linear', () => {
     expect(y(1000)).toBe(0)
     expect(y(-1000)).toBe(400)
   })
+
+  it('honors a tighter span factor for the Normal view', () => {
+    const tight = makeYScale('linear', 0, 1, [400, 0], 3)
+    expect(tight(0)).toBe(200)
+    expect(tight(3)).toBe(0)
+    expect(tight(-3)).toBe(400)
+    expect(tight(50)).toBe(0)
+  })
 })
 
 describe('isOffScale', () => {
@@ -74,7 +82,7 @@ describe('yTickValues', () => {
   it('returns signed decades plus zero for symlog', () => {
     const sym = makeYScale('symlog', 0, 1, [400, 0])
     expect(yTickValues('symlog', sym)).toEqual([
-      -1e6, -1e4, -100, -10, -1, 0, 1, 10, 100, 1e4, 1e6,
+      -1e3, -100, -10, -1, 0, 1, 10, 100, 1e3,
     ])
   })
 

@@ -117,6 +117,8 @@ export function drawAxes(
   ctx.restore()
 }
 
+/* Dotted rather than dashed so the converged median, which is dashed in
+   the distribution hue, stays distinguishable when it sits on the line. */
 export function drawTargetLine(
   ctx: CanvasRenderingContext2D,
   layout: ChartLayout,
@@ -129,11 +131,70 @@ export function drawTargetLine(
   ctx.save()
   ctx.strokeStyle = color
   ctx.lineWidth = 1.5
-  ctx.setLineDash([5, 5])
+  ctx.setLineDash([2, 4])
   ctx.beginPath()
   ctx.moveTo(area.x, y)
   ctx.lineTo(area.x + area.w, y)
   ctx.stroke()
+  ctx.restore()
+}
+
+/*
+ * The 95% central band for the running mean of Normal draws, bounded by
+ * location plus and minus 1.96 sigma over the square root of n. Sampled
+ * geometrically so the funnel mouth stays smooth. The Cauchy gets no band
+ * on purpose: with no variance there is nothing of the kind to draw.
+ */
+export function drawNormalBand(
+  ctx: CanvasRenderingContext2D,
+  layout: ChartLayout,
+  xScale: NumericScale,
+  yScale: NumericScale,
+  location: number,
+  sigma: number,
+  maxN: number,
+  color: string,
+): void {
+  const area = plotArea(layout)
+  const half = (n: number) => (1.96 * sigma) / Math.sqrt(n)
+  const ns: number[] = []
+  for (let n = 1; n < maxN; n += Math.max(1, Math.floor(n / 50))) ns.push(n)
+  ns.push(maxN)
+
+  ctx.save()
+  ctx.beginPath()
+  ctx.rect(area.x, area.y, area.w, area.h)
+  ctx.clip()
+
+  ctx.beginPath()
+  ns.forEach((n, i) => {
+    const x = xScale(n)
+    const y = yScale(location + half(n))
+    if (i === 0) ctx.moveTo(x, y)
+    else ctx.lineTo(x, y)
+  })
+  for (let i = ns.length - 1; i >= 0; i--) {
+    ctx.lineTo(xScale(ns[i]), yScale(location - half(ns[i])))
+  }
+  ctx.closePath()
+  ctx.globalAlpha = 0.08
+  ctx.fillStyle = color
+  ctx.fill()
+
+  ctx.globalAlpha = 0.45
+  ctx.strokeStyle = color
+  ctx.lineWidth = 1
+  ctx.setLineDash([2, 3])
+  for (const sign of [1, -1]) {
+    ctx.beginPath()
+    ns.forEach((n, i) => {
+      const x = xScale(n)
+      const y = yScale(location + sign * half(n))
+      if (i === 0) ctx.moveTo(x, y)
+      else ctx.lineTo(x, y)
+    })
+    ctx.stroke()
+  }
   ctx.restore()
 }
 

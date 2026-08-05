@@ -21,6 +21,12 @@ export function Explainer() {
         The running median is different. The median is a stable estimate of where the
         distribution is centered, so its trace settles on the location parameter.
       </p>
+      <p>
+        In Normal mode a shaded band marks where the running mean should sit 95 percent of
+        the time. It tightens like one over the square root of n, and the trace threads it.
+        The Cauchy chart has no band on purpose: with no variance there is no shrinking
+        funnel to draw, and the spread of its mean never tightens at all.
+      </p>
 
       <h2>Why it happens</h2>
       <p>

@@ -55,6 +55,12 @@ function App() {
               <span className="swatch swatch-target" aria-hidden="true" />
               location
             </li>
+            {config.distribution === 'normal' && (
+              <li>
+                <span className="swatch swatch-band" aria-hidden="true" />
+                95% range of the mean
+              </li>
+            )}
           </ul>
           <ConvergenceCanvas config={config} restartToken={restartToken} onReadout={setReadout} />
           <dl className="readouts">

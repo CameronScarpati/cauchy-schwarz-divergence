@@ -19,6 +19,7 @@ import {
   clearCanvas,
   drawAxes,
   drawGrid,
+  drawNormalBand,
   drawOffScaleMarkers,
   drawTargetLine,
   drawTrace,
@@ -131,6 +132,18 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
       clearCanvas(view.bg, view.layout)
       const ticks = yTickValues(cfg.yMode, view.y)
       drawGrid(view.bg, view.layout, view.y, ticks, view.palette.grid)
+      if (cfg.distribution === 'normal') {
+        drawNormalBand(
+          view.bg,
+          view.layout,
+          view.x,
+          view.y,
+          cfg.location,
+          cfg.scale,
+          cfg.maxSamples,
+          view.palette.normal,
+        )
+      }
       drawAxes(
         view.bg,
         view.layout,
@@ -160,10 +173,13 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
       viewRef.current = {
         layout,
         x: makeXScale(cfg.maxSamples, [layout.margin.left, width - layout.margin.right]),
-        y: makeYScale(cfg.yMode, cfg.location, cfg.scale, [
-          height - layout.margin.bottom,
-          layout.margin.top,
-        ]),
+        y: makeYScale(
+          cfg.yMode,
+          cfg.location,
+          cfg.scale,
+          [height - layout.margin.bottom, layout.margin.top],
+          cfg.distribution === 'normal' ? 3 : 10,
+        ),
         bg: bgCtx,
         fg: fgCtx,
         palette: {

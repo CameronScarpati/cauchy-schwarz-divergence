@@ -13,8 +13,10 @@ export interface NumericScale {
 }
 
 /* Both y modes clamp to their domain; anything outside is pinned to the
-   edge by the scale and reported through isOffScale for annotation. */
-export const SYMLOG_LIMIT = 1e6
+   edge by the scale and reported through isOffScale for annotation. The
+   limit stays modest so the region near the target line keeps resolution;
+   rarer, larger spikes clip and get the arrow annotation instead. */
+export const SYMLOG_LIMIT = 1e3
 
 export function makeXScale(maxSamples: number, range: [number, number]): NumericScale {
   return scaleLinear()
@@ -27,6 +29,10 @@ export function makeYScale(
   center: number,
   gamma: number,
   range: [number, number],
+  /* Half-span of the linear mode in units of the scale parameter. Cauchy
+     means wander, so they get room; a Normal mean stays within a few
+     sigma, so a tight span keeps its convergence visible. */
+  spanFactor = 10,
 ): NumericScale {
   if (mode === 'symlog') {
     /* The symlog constant is tuned near the scale parameter so typical
@@ -37,7 +43,7 @@ export function makeYScale(
       .range(range)
       .clamp(true)
   }
-  const span = 10 * gamma
+  const span = spanFactor * gamma
   return scaleLinear()
     .domain([center - span, center + span])
     .range(range)
@@ -53,7 +59,7 @@ export function isOffScale(scale: NumericScale, value: number): boolean {
    for a log-compressed axis. Linear mode defers to d3's nice ticks. */
 export function yTickValues(mode: YMode, scale: NumericScale): number[] {
   if (mode === 'linear') return scale.ticks(7)
-  const decades = [1, 10, 100, 1e4, 1e6].filter((d) => d <= SYMLOG_LIMIT)
+  const decades = [1, 10, 100, 1e3, 1e4, 1e6].filter((d) => d <= SYMLOG_LIMIT)
   return [...decades.map((d) => -d).reverse(), 0, ...decades]
 }
 
