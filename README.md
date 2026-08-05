@@ -12,7 +12,7 @@ The Cauchy distribution has no defined mean or variance, so the Law of Large Num
 
 ## Using it
 
-Toggle between Cauchy and Normal. Adjust the location and scale. Change the animation speed. Reseed to replay a fresh run, or reuse a seed to reproduce one exactly. Turn on multiple overlaid runs to confirm the mean's wandering is not a one-off.
+Toggle between Cauchy and Normal. Adjust the location and scale. Change the animation speed. Restart replays the current seed from sample one, Reseed picks a fresh seed, and typing a seed into the box reproduces a run exactly. Switch the vertical axis between symmetric log and clipped linear, where off-scale values are pinned to the edge and annotated with their actual size. Turn on multiple overlaid runs to confirm the mean's wandering is not a one-off. A button in the header switches light and dark themes.
 
 ## Running locally
 
@@ -21,7 +21,7 @@ npm install
 npm run dev
 ```
 
-npm run build produces the static site in dist.
+npm run build type-checks and produces the static site in dist. npm run test runs the unit tests for the sampling, running statistics, and scale modules.
 
 ## How it is built
 
