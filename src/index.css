@@ -222,3 +222,23 @@ main p {
 .controls button:hover {
   background: var(--bg);
 }
+
+.explainer {
+  margin-top: var(--space-7);
+  max-width: var(--measure);
+}
+
+.explainer h2 {
+  font-size: var(--fs-md);
+  margin-top: var(--space-6);
+}
+
+.explainer p {
+  margin-top: var(--space-3);
+}
+
+.explainer .katex-display {
+  margin: var(--space-4) 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}

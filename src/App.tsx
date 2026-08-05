@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react'
 import { DEFAULT_CONFIG, type Readout, type SimConfig } from './config.ts'
 import { Controls } from './ui/Controls.tsx'
+import { Explainer } from './ui/Explainer.tsx'
 import { ConvergenceCanvas } from './viz/ConvergenceCanvas.tsx'
 import { formatReadout } from './viz/scales.ts'
 
@@ -59,6 +60,7 @@ function App() {
         onRestart={handleRestart}
         onReseed={handleReseed}
       />
+      <Explainer />
     </main>
   )
 }
