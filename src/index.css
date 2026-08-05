@@ -1,3 +1,5 @@
+/* Base */
+
 *,
 *::before,
 *::after {
@@ -27,6 +29,7 @@ h3 {
 h1 {
   font-weight: 700;
   font-size: var(--fs-2xl);
+  letter-spacing: -0.01em;
 }
 
 h2,
@@ -37,8 +40,13 @@ h3 {
 code,
 pre,
 kbd,
-samp {
+samp,
+output {
   font-family: var(--font-mono);
+}
+
+button {
+  font: inherit;
 }
 
 :focus-visible {
@@ -46,37 +54,102 @@ samp {
   outline-offset: var(--focus-offset);
 }
 
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+::selection {
+  background: var(--normal);
+  color: var(--surface);
 }
 
-/* Placeholder shell; the real chart-plus-rail layout replaces this. */
-main {
-  max-width: 960px;
+/* Page frame */
+
+.page {
+  max-width: 1280px;
   margin-inline: auto;
-  padding: var(--space-6) var(--space-4);
+  padding: var(--space-6) var(--space-5) var(--space-8);
 }
 
-main p {
-  margin-top: var(--space-3);
+.masthead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-6);
+}
+
+.tagline {
+  margin-top: var(--space-2);
   color: var(--text-muted);
   max-width: var(--measure);
+}
+
+/* Layout: chart owns the left two thirds, the rail reads then controls */
+
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 68fr) minmax(320px, 32fr);
+  grid-template-rows: auto auto;
+  grid-template-areas:
+    'chart explainer'
+    'chart controls';
+  gap: var(--space-5);
+  align-items: start;
+}
+
+/* Chart panel */
+
+.chart-panel {
+  grid-area: chart;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: var(--space-4);
+  /* Keeps the simulation in view while the rail is read or scrolled. */
+  position: sticky;
+  top: var(--space-5);
+}
+
+.chart-panel[data-distribution='cauchy'] {
+  --trace: var(--cauchy);
+}
+
+.chart-panel[data-distribution='normal'] {
+  --trace: var(--normal);
+}
+
+.legend {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-5);
+  margin-bottom: var(--space-3);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+}
+
+.legend li {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.swatch {
+  display: inline-block;
+  width: 22px;
+  border-top: 2px solid var(--trace);
+}
+
+.swatch-median {
+  border-top-style: dashed;
+}
+
+.swatch-target {
+  border-top-color: var(--target);
+  border-top-style: dashed;
 }
 
 .convergence-canvas {
   position: relative;
   width: 100%;
-  height: 460px;
-  margin-top: var(--space-5);
-  background: var(--surface);
-  border: 1px solid var(--line);
+  height: clamp(400px, 62vh, 640px);
 }
 
 .convergence-canvas canvas {
@@ -89,6 +162,8 @@ main p {
   flex-wrap: wrap;
   gap: var(--space-2) var(--space-5);
   margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
   font-family: var(--font-mono);
   font-size: var(--fs-sm);
 }
@@ -106,12 +181,51 @@ main p {
   min-width: 8ch;
 }
 
+/* Rail panels */
+
+.explainer {
+  grid-area: explainer;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: var(--space-5);
+}
+
+.explainer h2 {
+  font-size: var(--fs-md);
+}
+
+.explainer h2 + p {
+  margin-top: var(--space-2);
+}
+
+.explainer p + p,
+.explainer p + h2,
+.explainer .katex-display + p,
+.explainer h2 + .katex-display {
+  margin-top: var(--space-4);
+}
+
+.explainer p {
+  max-width: var(--measure);
+}
+
+.explainer .katex-display {
+  margin: var(--space-4) 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: var(--space-1) 0;
+}
+
 .controls {
+  grid-area: controls;
   display: grid;
   gap: var(--space-4);
-  margin-top: var(--space-5);
-  max-width: 420px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  padding: var(--space-5);
 }
+
+/* Controls */
 
 .control {
   display: grid;
@@ -127,21 +241,55 @@ main p {
 }
 
 .control-line output {
-  font-family: var(--font-mono);
   font-weight: 400;
   color: var(--text-muted);
+}
+
+input[type='range'] {
+  appearance: none;
+  width: 100%;
+  height: 24px;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 2px;
+  background: var(--line);
+}
+
+input[type='range']::-webkit-slider-thumb {
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  margin-top: -6px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--text);
+}
+
+input[type='range']::-moz-range-track {
+  height: 2px;
+  background: var(--line);
+}
+
+input[type='range']::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border: none;
+  border-radius: var(--radius-control);
+  background: var(--text);
 }
 
 .segmented-group {
   border: none;
   padding: 0;
-  margin: 0;
 }
 
 .segmented-group legend {
   font-weight: 500;
   font-size: var(--fs-sm);
-  margin-bottom: var(--space-1);
+  margin-bottom: var(--space-2);
 }
 
 .segmented {
@@ -149,10 +297,6 @@ main p {
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
   overflow: hidden;
-}
-
-.segmented label {
-  display: block;
 }
 
 .segmented input {
@@ -165,17 +309,23 @@ main p {
   display: block;
   padding: var(--space-1) var(--space-3);
   font-size: var(--fs-sm);
+  font-weight: 500;
   cursor: pointer;
   border-left: 1px solid var(--line);
+  transition: background-color 150ms ease-out;
 }
 
 .segmented label:first-child span {
   border-left: none;
 }
 
+.segmented span:hover {
+  background: var(--bg);
+}
+
 .segmented input:checked + span {
   background: var(--text);
-  color: var(--bg);
+  color: var(--surface);
 }
 
 .segmented input:focus-visible + span {
@@ -185,7 +335,7 @@ main p {
 
 .control-row {
   display: flex;
-  align-items: end;
+  align-items: flex-end;
   gap: var(--space-3);
 }
 
@@ -199,7 +349,7 @@ main p {
 .seed-field input {
   font-family: var(--font-mono);
   font-size: var(--fs-base);
-  width: 12ch;
+  width: 11ch;
   padding: var(--space-1) var(--space-2);
   border: 1px solid var(--line);
   border-radius: var(--radius-control);
@@ -207,8 +357,7 @@ main p {
   color: var(--text);
 }
 
-.controls button {
-  font-family: var(--font-body);
+button {
   font-weight: 500;
   font-size: var(--fs-sm);
   padding: var(--space-2) var(--space-4);
@@ -217,28 +366,55 @@ main p {
   background: var(--surface);
   color: var(--text);
   cursor: pointer;
+  transition: background-color 150ms ease-out;
 }
 
-.controls button:hover {
+button:hover {
   background: var(--bg);
 }
 
-.explainer {
-  margin-top: var(--space-7);
-  max-width: var(--measure);
+/* Responsive: single column, chart first, controls beneath it */
+
+@media (max-width: 960px) {
+  .page {
+    padding: var(--space-5) var(--space-4) var(--space-7);
+  }
+
+  h1 {
+    font-size: var(--fs-xl);
+  }
+
+  .masthead {
+    flex-direction: column;
+  }
+
+  .layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    grid-template-areas:
+      'chart'
+      'controls'
+      'explainer';
+  }
+
+  .chart-panel {
+    position: static;
+  }
+
+  .convergence-canvas {
+    height: min(52vh, 420px);
+  }
 }
 
-.explainer h2 {
-  font-size: var(--fs-md);
-  margin-top: var(--space-6);
-}
+/* Reduced motion: freeze every CSS transition and animation */
 
-.explainer p {
-  margin-top: var(--space-3);
-}
-
-.explainer .katex-display {
-  margin: var(--space-4) 0;
-  overflow-x: auto;
-  overflow-y: hidden;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

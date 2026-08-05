@@ -1,8 +1,15 @@
+import { motion, useReducedMotion } from 'motion/react'
 import { MathBlock, MathInline } from './Math.tsx'
 
 export function Explainer() {
+  const reduced = useReducedMotion() === true
   return (
-    <section className="explainer">
+    <motion.section
+      className="explainer"
+      initial={reduced ? false : { opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+    >
       <h2>What you are seeing</h2>
       <p>
         Draw random numbers from a Cauchy distribution and watch the running average. It never
@@ -29,9 +36,9 @@ export function Explainer() {
       <MathBlock tex="\bar{X}_n = \frac{1}{n}\sum_{i=1}^{n} X_i \;\sim\; \mathrm{Cauchy}(x_0, \gamma)" />
       <p>
         The sample median, by contrast, is a consistent estimator of the location parameter{' '}
-        <MathInline tex="x_0" />, so its running trace converges. That is the whole story of
+        <MathInline tex="x_0" /> and its running trace converges. That is the whole story of
         the chart: the solid mean keeps wandering, the dashed median locks on.
       </p>
-    </section>
+    </motion.section>
   )
 }

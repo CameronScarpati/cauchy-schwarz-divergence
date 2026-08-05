@@ -178,10 +178,18 @@ export interface OffScaleEvent {
   value: number
 }
 
+export interface MarkerStyle {
+  color: string
+  /* Casing stroke behind the label so it stays legible over traces. */
+  casing: string
+  font: string
+  formatValue: (v: number) => string
+}
+
 /*
  * The runaway spike annotation: a small arrow pinned at the clip edge with
  * the actual value printed beside it, so off-scale draws are marked rather
- * than hidden.
+ * than hidden. Labels skip neighbors closer than 70px; the arrows remain.
  */
 export function drawOffScaleMarkers(
   ctx: CanvasRenderingContext2D,
@@ -189,32 +197,39 @@ export function drawOffScaleMarkers(
   xScale: NumericScale,
   yScale: NumericScale,
   events: OffScaleEvent[],
-  color: string,
-  font: string,
-  formatValue: (v: number) => string,
+  style: MarkerStyle,
 ): void {
   if (events.length === 0) return
   const area = plotArea(layout)
   const [d0, d1] = yScale.domain()
   const top = Math.max(d0, d1)
   ctx.save()
-  ctx.font = font
-  ctx.fillStyle = color
+  ctx.font = style.font
+  let lastLabelX = -Infinity
   for (const event of events) {
     const x = xScale(event.n)
     const up = event.value > top
-    const edgeY = up ? area.y + 3 : area.y + area.h - 3
-    const dir = up ? -1 : 1
+    const edgeY = up ? area.y + 2 : area.y + area.h - 2
+    const dir = up ? 1 : -1
+    ctx.fillStyle = style.color
     ctx.beginPath()
-    ctx.moveTo(x, edgeY + dir * 2)
-    ctx.lineTo(x - 4, edgeY - dir * 6)
-    ctx.lineTo(x + 4, edgeY - dir * 6)
+    ctx.moveTo(x, edgeY)
+    ctx.lineTo(x - 4.5, edgeY + dir * 7)
+    ctx.lineTo(x + 4.5, edgeY + dir * 7)
     ctx.closePath()
     ctx.fill()
-    ctx.textAlign = x > area.x + area.w - 90 ? 'right' : 'left'
+    if (Math.abs(x - lastLabelX) < 70) continue
+    lastLabelX = x
+    const alignRight = x > area.x + area.w - 90
+    ctx.textAlign = alignRight ? 'right' : 'left'
     ctx.textBaseline = up ? 'top' : 'bottom'
-    const labelX = x + (ctx.textAlign === 'left' ? 8 : -8)
-    ctx.fillText(formatValue(event.value), labelX, up ? area.y + 2 : area.y + area.h - 2)
+    const labelX = x + (alignRight ? -9 : 9)
+    const labelY = up ? area.y + 2 : area.y + area.h - 2
+    const label = style.formatValue(event.value)
+    ctx.lineWidth = 3
+    ctx.strokeStyle = style.casing
+    ctx.strokeText(label, labelX, labelY)
+    ctx.fillText(label, labelX, labelY)
   }
   ctx.restore()
 }

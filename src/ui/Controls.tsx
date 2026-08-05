@@ -1,7 +1,20 @@
 import { useEffect, useState } from 'react'
+import { motion, useReducedMotion } from 'motion/react'
 import type { SimConfig } from '../config.ts'
 
 const SPEED_STOPS = [25, 50, 100, 250, 500, 1000, 2000]
+
+const EASE_OUT = [0.22, 1, 0.36, 1] as const
+
+const railVariants = {
+  hidden: {},
+  show: { transition: { staggerChildren: 0.04 } },
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 8 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.22, ease: EASE_OUT } },
+}
 
 interface ControlsProps {
   config: SimConfig
@@ -12,6 +25,7 @@ interface ControlsProps {
 
 export function Controls({ config, onChange, onRestart, onReseed }: ControlsProps) {
   const [seedText, setSeedText] = useState(String(config.seed))
+  const reduced = useReducedMotion() === true
 
   useEffect(() => {
     setSeedText(String(config.seed))
@@ -29,8 +43,14 @@ export function Controls({ config, onChange, onRestart, onReseed }: ControlsProp
   const speedIndex = SPEED_STOPS.indexOf(config.samplesPerSecond)
 
   return (
-    <form className="controls" onSubmit={(event) => event.preventDefault()}>
-      <fieldset className="segmented-group">
+    <motion.form
+      className="controls"
+      onSubmit={(event) => event.preventDefault()}
+      variants={railVariants}
+      initial={reduced ? false : 'hidden'}
+      animate="show"
+    >
+      <motion.fieldset className="segmented-group" variants={itemVariants}>
         <legend>Distribution</legend>
         <div className="segmented">
           <label>
@@ -52,9 +72,9 @@ export function Controls({ config, onChange, onRestart, onReseed }: ControlsProp
             <span>Normal</span>
           </label>
         </div>
-      </fieldset>
+      </motion.fieldset>
 
-      <label className="control">
+      <motion.label className="control" variants={itemVariants}>
         <span className="control-line">
           Location
           <output>{config.location.toFixed(1)}</output>
@@ -67,9 +87,9 @@ export function Controls({ config, onChange, onRestart, onReseed }: ControlsProp
           value={config.location}
           onChange={(event) => onChange({ location: Number(event.target.value) })}
         />
-      </label>
+      </motion.label>
 
-      <label className="control">
+      <motion.label className="control" variants={itemVariants}>
         <span className="control-line">
           Scale
           <output>{config.scale.toFixed(1)}</output>
@@ -82,9 +102,9 @@ export function Controls({ config, onChange, onRestart, onReseed }: ControlsProp
           value={config.scale}
           onChange={(event) => onChange({ scale: Number(event.target.value) })}
         />
-      </label>
+      </motion.label>
 
-      <label className="control">
+      <motion.label className="control" variants={itemVariants}>
         <span className="control-line">
           Speed
           <output>{config.samplesPerSecond} samples/s</output>
@@ -99,9 +119,9 @@ export function Controls({ config, onChange, onRestart, onReseed }: ControlsProp
             onChange({ samplesPerSecond: SPEED_STOPS[Number(event.target.value)] })
           }
         />
-      </label>
+      </motion.label>
 
-      <label className="control">
+      <motion.label className="control" variants={itemVariants}>
         <span className="control-line">
           Overlaid runs
           <output>{config.runs}</output>
@@ -114,9 +134,9 @@ export function Controls({ config, onChange, onRestart, onReseed }: ControlsProp
           value={config.runs}
           onChange={(event) => onChange({ runs: Number(event.target.value) })}
         />
-      </label>
+      </motion.label>
 
-      <fieldset className="segmented-group">
+      <motion.fieldset className="segmented-group" variants={itemVariants}>
         <legend>Vertical axis</legend>
         <div className="segmented">
           <label>
@@ -138,9 +158,9 @@ export function Controls({ config, onChange, onRestart, onReseed }: ControlsProp
             <span>Linear, clipped</span>
           </label>
         </div>
-      </fieldset>
+      </motion.fieldset>
 
-      <div className="control-row">
+      <motion.div className="control-row" variants={itemVariants}>
         <label className="seed-field">
           <span>Seed</span>
           <input
@@ -160,7 +180,7 @@ export function Controls({ config, onChange, onRestart, onReseed }: ControlsProp
         <button type="button" onClick={onReseed}>
           Reseed
         </button>
-      </div>
-    </form>
+      </motion.div>
+    </motion.form>
   )
 }

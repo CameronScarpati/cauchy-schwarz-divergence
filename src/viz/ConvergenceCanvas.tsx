@@ -64,6 +64,7 @@ interface ViewState {
     target: string
     cauchy: string
     normal: string
+    surface: string
     monoFont: string
   }
 }
@@ -171,6 +172,7 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
           target: readToken('--target'),
           cauchy: readToken('--cauchy'),
           normal: readToken('--normal'),
+          surface: readToken('--surface'),
           monoFont: `500 11px ${mono}`,
         },
       }
@@ -202,16 +204,12 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
       }
       const primary = sim.runs[0]
       if (primary) {
-        drawOffScaleMarkers(
-          view.fg,
-          view.layout,
-          view.x,
-          view.y,
-          primary.offScale,
-          hue,
-          view.palette.monoFont,
-          formatReadout,
-        )
+        drawOffScaleMarkers(view.fg, view.layout, view.x, view.y, primary.offScale, {
+          color: hue,
+          casing: view.palette.surface,
+          font: view.palette.monoFont,
+          formatValue: formatReadout,
+        })
       }
       dirtyRef.current = false
     }

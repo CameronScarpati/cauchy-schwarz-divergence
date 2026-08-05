@@ -11,10 +11,10 @@ import 'katex/dist/katex.min.css'
 
 import './theme/tokens.css'
 import './index.css'
-import { applySystemTheme } from './theme/theme.ts'
+import { initTheme } from './theme/theme.ts'
 import App from './App.tsx'
 
-applySystemTheme()
+initTheme()
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

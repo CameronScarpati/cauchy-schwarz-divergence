@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { getTheme, setTheme } from './theme.ts'
+import { getTheme, setTheme, storedTheme, toggleTheme } from './theme.ts'
 
 function fakeRoot() {
   const attrs = new Map<string, string>()
@@ -7,6 +7,16 @@ function fakeRoot() {
     getAttribute: (name: string) => attrs.get(name) ?? null,
     setAttribute: (name: string, value: string) => {
       attrs.set(name, value)
+    },
+  }
+}
+
+function fakeStorage() {
+  const items = new Map<string, string>()
+  return {
+    getItem: (key: string) => items.get(key) ?? null,
+    setItem: (key: string, value: string) => {
+      items.set(key, value)
     },
   }
 }
@@ -23,5 +33,24 @@ describe('theme', () => {
     expect(getTheme(root)).toBe('dark')
     setTheme('light', root)
     expect(getTheme(root)).toBe('light')
+  })
+
+  it('reads only valid stored themes', () => {
+    const storage = fakeStorage()
+    expect(storedTheme(storage)).toBeNull()
+    storage.setItem('cauchy-theme', 'dark')
+    expect(storedTheme(storage)).toBe('dark')
+    storage.setItem('cauchy-theme', 'purple')
+    expect(storedTheme(storage)).toBeNull()
+  })
+
+  it('toggles and persists the choice', () => {
+    const root = fakeRoot()
+    const storage = fakeStorage()
+    expect(toggleTheme(storage, root)).toBe('dark')
+    expect(getTheme(root)).toBe('dark')
+    expect(storedTheme(storage)).toBe('dark')
+    expect(toggleTheme(storage, root)).toBe('light')
+    expect(storedTheme(storage)).toBe('light')
   })
 })
