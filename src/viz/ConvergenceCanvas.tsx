@@ -72,6 +72,9 @@ interface ViewState {
 
 const MAX_MARKERS = 5
 const FRAME_BUDGET_MS = 8
+/* Finished runs hold briefly, then replay the same seed so the chart
+   keeps moving while the page is read. */
+const REPLAY_HOLD_MS = 2000
 
 function sizeCanvas(
   canvas: HTMLCanvasElement,
@@ -106,6 +109,7 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
   const simRef = useRef<SimState | null>(null)
   const viewRef = useRef<ViewState | null>(null)
   const dirtyRef = useRef(false)
+  const doneAtRef = useRef<number | null>(null)
 
   const reduced = useReducedMotion() === true
 
@@ -121,6 +125,7 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
     renderFrame: () => void
     advanceSamples: (k: number) => void
     emitReadout: () => void
+    resetSim: () => void
     frame: (dt: number) => void
   } | null>(null)
 
@@ -144,6 +149,10 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
           view.palette.normal,
         )
       }
+      const xTicks =
+        cfg.distribution === 'normal'
+          ? [1, 10, 100, 1000].filter((v) => v < cfg.maxSamples).concat(cfg.maxSamples)
+          : undefined
       drawAxes(
         view.bg,
         view.layout,
@@ -152,6 +161,7 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
         ticks,
         { grid: view.palette.grid, label: view.palette.label },
         view.palette.monoFont,
+        xTicks,
       )
       drawTargetLine(view.bg, view.layout, view.y, cfg.location, view.palette.target)
     }
@@ -172,13 +182,17 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
       const mono = readToken('--font-mono') || 'monospace'
       viewRef.current = {
         layout,
-        x: makeXScale(cfg.maxSamples, [layout.margin.left, width - layout.margin.right]),
+        x: makeXScale(
+          cfg.maxSamples,
+          [layout.margin.left, width - layout.margin.right],
+          cfg.distribution === 'normal' ? 'log' : 'linear',
+        ),
         y: makeYScale(
           cfg.yMode,
           cfg.location,
           cfg.scale,
           [height - layout.margin.bottom, layout.margin.top],
-          cfg.distribution === 'normal' ? 3 : 10,
+          cfg.distribution === 'normal' ? 2.5 : 10,
         ),
         bg: bgCtx,
         fg: fgCtx,
@@ -284,11 +298,32 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
       })
     }
 
+    const resetSim = () => {
+      const cfg = configRef.current
+      doneAtRef.current = null
+      simRef.current = {
+        acc: 0,
+        count: 0,
+        runs: Array.from({ length: Math.max(1, cfg.runs) }, (_, i) => ({
+          rng: mulberry32((cfg.seed + i * 0x9e3779b9) >>> 0),
+          meanAcc: createRunningMean(),
+          medianAcc: createRunningMedian(),
+          meanTrace: new Float64Array(cfg.maxSamples),
+          medianTrace: new Float64Array(cfg.maxSamples),
+          offScale: [],
+          offScaleCount: 0,
+          lastValue: NaN,
+        })),
+      }
+      dirtyRef.current = true
+    }
+
     const frame = (dt: number) => {
       const sim = simRef.current
       if (!sim) return
       const cfg = configRef.current
       if (sim.count < cfg.maxSamples) {
+        doneAtRef.current = null
         sim.acc = Math.min(sim.acc + dt, 1000)
         const step = 1000 / cfg.samplesPerSecond
         const pending = Math.floor(sim.acc / step)
@@ -302,11 +337,15 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
           }
           sim.acc -= advanced * step
         }
+      } else if (doneAtRef.current === null) {
+        doneAtRef.current = performance.now()
+      } else if (performance.now() - doneAtRef.current > REPLAY_HOLD_MS) {
+        resetSim()
       }
       if (dirtyRef.current) renderFrame()
     }
 
-    helpersRef.current = { rebuildView, renderFrame, advanceSamples, emitReadout, frame }
+    helpersRef.current = { rebuildView, renderFrame, advanceSamples, emitReadout, resetSim, frame }
   }
 
   const helpers = helpersRef.current
@@ -323,23 +362,9 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
   ].join('|')
 
   useEffect(() => {
-    const cfg = configRef.current
-    simRef.current = {
-      acc: 0,
-      count: 0,
-      runs: Array.from({ length: Math.max(1, cfg.runs) }, (_, i) => ({
-        rng: mulberry32((cfg.seed + i * 0x9e3779b9) >>> 0),
-        meanAcc: createRunningMean(),
-        medianAcc: createRunningMedian(),
-        meanTrace: new Float64Array(cfg.maxSamples),
-        medianTrace: new Float64Array(cfg.maxSamples),
-        offScale: [],
-        offScaleCount: 0,
-        lastValue: NaN,
-      })),
-    }
+    helpers.resetSim()
     helpers.rebuildView()
-    if (reduced) helpers.advanceSamples(cfg.maxSamples)
+    if (reduced) helpers.advanceSamples(configRef.current.maxSamples)
     helpers.renderFrame()
     helpers.emitReadout()
   }, [resetKey, reduced, helpers])

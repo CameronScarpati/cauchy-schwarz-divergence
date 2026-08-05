@@ -1,6 +1,7 @@
-import { scaleLinear, scaleSymlog } from 'd3-scale'
+import { scaleLinear, scaleLog, scaleSymlog } from 'd3-scale'
 
 export type YMode = 'symlog' | 'linear'
+export type XMode = 'linear' | 'log'
 
 /*
  * Minimal structural view of a d3 continuous scale so draw code depends on
@@ -18,10 +19,19 @@ export interface NumericScale {
    rarer, larger spikes clip and get the arrow annotation instead. */
 export const SYMLOG_LIMIT = 1e3
 
-export function makeXScale(maxSamples: number, range: [number, number]): NumericScale {
-  return scaleLinear()
-    .domain([1, Math.max(2, maxSamples)])
-    .range(range)
+/* Log mode gives the early samples, where all the visible convergence
+   happens, most of the width. Sample counts start at 1, so the log
+   domain is always valid. */
+export function makeXScale(
+  maxSamples: number,
+  range: [number, number],
+  mode: XMode = 'linear',
+): NumericScale {
+  const domain: [number, number] = [1, Math.max(2, maxSamples)]
+  if (mode === 'log') {
+    return scaleLog().domain(domain).range(range)
+  }
+  return scaleLinear().domain(domain).range(range)
 }
 
 export function makeYScale(

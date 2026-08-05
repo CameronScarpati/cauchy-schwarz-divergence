@@ -76,15 +76,16 @@ button {
   max-width: var(--measure);
 }
 
-/* Layout: an instrument band up top, chart beside controls at matched
-   height, then the narrative flows below as a centered reading column */
+/* Layout: the chart stays sticky on the left and keeps animating while
+   the right column scrolls through controls and then the narrative at a
+   comfortable reading measure */
 
 .layout {
   display: grid;
-  grid-template-columns: minmax(0, 68fr) minmax(320px, 32fr);
+  grid-template-columns: minmax(0, 56fr) minmax(400px, 44fr);
   grid-template-areas:
     'chart controls'
-    'explainer explainer';
+    'chart explainer';
   gap: var(--space-5);
 }
 
@@ -92,6 +93,9 @@ button {
 
 .chart-panel {
   grid-area: chart;
+  align-self: start;
+  position: sticky;
+  top: var(--space-5);
   background: var(--surface);
   border: 1px solid var(--line);
   padding: var(--space-4);
@@ -147,7 +151,7 @@ button {
 .convergence-canvas {
   position: relative;
   width: 100%;
-  height: clamp(360px, 48vh, 440px);
+  height: clamp(360px, 56vh, 600px);
 }
 
 .convergence-canvas canvas {
@@ -179,18 +183,16 @@ button {
   min-width: 8ch;
 }
 
-/* Narrative: a borderless reading column under the instrument band */
+/* Narrative: a borderless reading column beside the sticky chart */
 
 .explainer {
   grid-area: explainer;
-  justify-self: center;
-  width: 100%;
-  max-width: 68ch;
-  margin-top: var(--space-6);
+  max-width: var(--measure);
+  margin-top: var(--space-4);
 }
 
 .explainer h2 {
-  font-size: var(--fs-lg);
+  font-size: var(--fs-md);
 }
 
 .explainer h2 + p {
@@ -204,7 +206,32 @@ button {
 }
 
 .explainer p + h2 {
+  margin-top: var(--space-6);
+}
+
+/* Colophon */
+
+.colophon {
   margin-top: var(--space-7);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-sm);
+  color: var(--text-muted);
+  max-width: var(--measure);
+}
+
+.colophon p + p {
+  margin-top: var(--space-2);
+}
+
+.colophon a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.colophon a:hover {
+  color: var(--text);
 }
 
 .explainer p {
@@ -396,6 +423,10 @@ button:hover {
       'chart'
       'controls'
       'explainer';
+  }
+
+  .chart-panel {
+    position: static;
   }
 
   .explainer {

@@ -12,7 +12,7 @@ The Cauchy distribution has no defined mean or variance, so the Law of Large Num
 
 ## Using it
 
-Toggle between Cauchy and Normal. Adjust the location and scale. Change the animation speed. Restart replays the current seed from sample one, Reseed picks a fresh seed, and typing a seed into the box reproduces a run exactly. Switch the vertical axis between symmetric log and clipped linear, where off-scale values are pinned to the edge and annotated with their actual size. Turn on multiple overlaid runs to confirm the mean's wandering is not a one-off. A button in the header switches light and dark themes.
+Toggle between Cauchy and Normal. Adjust the location and scale. Change the animation speed. Restart replays the current seed from sample one, Reseed picks a fresh seed, and typing a seed into the box reproduces a run exactly. Switch the vertical axis between symmetric log and clipped linear, where off-scale values are pinned to the edge and annotated with their actual size. Turn on multiple overlaid runs to confirm the mean's wandering is not a one-off. A button in the header switches light and dark themes. Finished runs pause briefly and then replay the same seed, so the chart keeps moving while you read.
 
 ## Running locally
 

@@ -94,6 +94,22 @@ function App() {
           onReseed={handleReseed}
         />
       </main>
+      <footer className="colophon">
+        <p>
+          Built by <a href="https://github.com/CameronScarpati">Cameron Scarpati</a> as a
+          portfolio project. <a href="https://github.com/CameronScarpati/cauchy-schwarz-divergence">
+            Source on GitHub
+          </a>
+          .
+        </p>
+        <p>
+          Read more about the{' '}
+          <a href="https://en.wikipedia.org/wiki/Cauchy_distribution">Cauchy distribution</a>,
+          named for Augustin-Louis Cauchy, and the{' '}
+          <a href="https://en.wikipedia.org/wiki/Law_of_large_numbers">Law of Large Numbers</a>{' '}
+          it slips past.
+        </p>
+      </footer>
     </div>
   )
 }

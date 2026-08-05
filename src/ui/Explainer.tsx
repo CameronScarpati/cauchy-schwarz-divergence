@@ -24,8 +24,10 @@ export function Explainer() {
       <p>
         In Normal mode a shaded band marks where the running mean should sit 95 percent of
         the time. It tightens like one over the square root of n, and the trace threads it.
-        The Cauchy chart has no band on purpose: with no variance there is no shrinking
-        funnel to draw, and the spread of its mean never tightens at all.
+        The sample axis there is logarithmic, since the early samples are where all the
+        visible settling happens. The Cauchy chart has no band on purpose: with no variance
+        there is no shrinking funnel to draw, and the spread of its mean never tightens at
+        all.
       </p>
 
       <h2>Why it happens</h2>

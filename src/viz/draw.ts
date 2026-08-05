@@ -83,6 +83,7 @@ export function drawAxes(
   yTicks: number[],
   colors: AxisColors,
   font: string,
+  xTicks?: number[],
 ): void {
   const area = plotArea(layout)
   ctx.save()
@@ -99,7 +100,7 @@ export function drawAxes(
 
   ctx.textAlign = 'center'
   ctx.textBaseline = 'top'
-  for (const t of xScale.ticks(6)) {
+  for (const t of xTicks ?? xScale.ticks(6)) {
     if (!Number.isInteger(t)) continue
     const x = xScale(t)
     ctx.beginPath()
@@ -313,21 +314,28 @@ export function drawOffScaleMarkers(
   const top = Math.max(d0, d1)
   ctx.save()
   ctx.font = style.font
-  let lastLabelX = -Infinity
+
+  /* Two passes so a later arrow never stamps over an earlier label. */
+  ctx.fillStyle = style.color
   for (const event of events) {
     const x = xScale(event.n)
     const up = event.value > top
     const edgeY = up ? area.y + 2 : area.y + area.h - 2
     const dir = up ? 1 : -1
-    ctx.fillStyle = style.color
     ctx.beginPath()
     ctx.moveTo(x, edgeY)
     ctx.lineTo(x - 4.5, edgeY + dir * 7)
     ctx.lineTo(x + 4.5, edgeY + dir * 7)
     ctx.closePath()
     ctx.fill()
+  }
+
+  let lastLabelX = -Infinity
+  for (const event of events) {
+    const x = xScale(event.n)
     if (Math.abs(x - lastLabelX) < 70) continue
     lastLabelX = x
+    const up = event.value > top
     const alignRight = x > area.x + area.w - 90
     ctx.textAlign = alignRight ? 'right' : 'left'
     ctx.textBaseline = up ? 'top' : 'bottom'

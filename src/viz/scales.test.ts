@@ -15,6 +15,13 @@ describe('makeXScale', () => {
     expect(x(1)).toBe(0)
     expect(x(5000)).toBe(800)
   })
+
+  it('spreads decades evenly in log mode', () => {
+    const x = makeXScale(10000, [0, 800], 'log')
+    expect(x(1)).toBeCloseTo(0, 9)
+    expect(x(10000)).toBeCloseTo(800, 9)
+    expect(x(100)).toBeCloseTo(400, 9)
+  })
 })
 
 describe('makeYScale symlog', () => {
