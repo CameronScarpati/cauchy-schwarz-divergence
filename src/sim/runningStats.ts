@@ -1,0 +1,62 @@
+import { createHeap, heapPeek, heapPop, heapPush, heapSize, type Heap } from './heap.ts'
+
+/* Two-heap running median: a max-heap holds the lower half, a min-heap the
+   upper half, and their sizes never differ by more than one. */
+export interface RunningMedian {
+  lower: Heap
+  upper: Heap
+}
+
+export function createRunningMedian(): RunningMedian {
+  return {
+    lower: createHeap((a, b) => b - a),
+    upper: createHeap((a, b) => a - b),
+  }
+}
+
+export function medianPush(state: RunningMedian, value: number): void {
+  const lowerTop = heapPeek(state.lower)
+  if (lowerTop === undefined || value <= lowerTop) {
+    heapPush(state.lower, value)
+  } else {
+    heapPush(state.upper, value)
+  }
+  if (heapSize(state.lower) > heapSize(state.upper) + 1) {
+    heapPush(state.upper, heapPop(state.lower) as number)
+  } else if (heapSize(state.upper) > heapSize(state.lower) + 1) {
+    heapPush(state.lower, heapPop(state.upper) as number)
+  }
+}
+
+export function median(state: RunningMedian): number {
+  const lowerCount = heapSize(state.lower)
+  const upperCount = heapSize(state.upper)
+  if (lowerCount + upperCount === 0) return NaN
+  if (lowerCount === upperCount) {
+    return ((heapPeek(state.lower) as number) + (heapPeek(state.upper) as number)) / 2
+  }
+  return lowerCount > upperCount
+    ? (heapPeek(state.lower) as number)
+    : (heapPeek(state.upper) as number)
+}
+
+/* Incremental mean update instead of a raw sum: single Cauchy draws can be
+   astronomically large, and the increment form avoids overflowing the
+   intermediate total. */
+export interface RunningMean {
+  count: number
+  mean: number
+}
+
+export function createRunningMean(): RunningMean {
+  return { count: 0, mean: 0 }
+}
+
+export function meanPush(state: RunningMean, value: number): void {
+  state.count += 1
+  state.mean += (value - state.mean) / state.count
+}
+
+export function mean(state: RunningMean): number {
+  return state.count === 0 ? NaN : state.mean
+}
