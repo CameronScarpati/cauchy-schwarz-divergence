@@ -36,3 +36,56 @@ export interface Readout {
   offScaleCount: number
   done: boolean
 }
+
+/* One-click classroom scenarios: each cues a complete, reproducible story
+   a teacher can talk over without touching the sliders. */
+export interface Preset {
+  label: string
+  note: string
+  config: SimConfig
+}
+
+export const PRESETS: Preset[] = [
+  {
+    label: 'One bad draw',
+    note: 'A single Cauchy sample knocks the running mean off the chart and thousands of samples cannot undo it.',
+    config: {
+      distribution: 'cauchy',
+      location: 0,
+      scale: 1,
+      seed: 42,
+      samplesPerSecond: 250,
+      maxSamples: 5000,
+      yMode: 'symlog',
+      runs: 1,
+    },
+  },
+  {
+    label: 'Averaging buys nothing',
+    note: 'Five independent Cauchy runs give five wandering means, so the jumping is not a one-off.',
+    config: {
+      distribution: 'cauchy',
+      location: 0,
+      scale: 1,
+      seed: 7,
+      samplesPerSecond: 500,
+      maxSamples: 5000,
+      yMode: 'symlog',
+      runs: 5,
+    },
+  },
+  {
+    label: 'The law holds here',
+    note: 'Normal draws settle inside the tightening 95 percent band, which is what the Law of Large Numbers usually looks like.',
+    config: {
+      distribution: 'normal',
+      location: 0,
+      scale: 1,
+      seed: 42,
+      samplesPerSecond: 250,
+      maxSamples: 5000,
+      yMode: 'linear',
+      runs: 1,
+    },
+  },
+]

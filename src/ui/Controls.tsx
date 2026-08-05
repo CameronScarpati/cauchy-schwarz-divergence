@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, useReducedMotion } from 'motion/react'
-import type { SimConfig } from '../config.ts'
+import { PRESETS, type SimConfig } from '../config.ts'
 
 const SPEED_STOPS = [25, 50, 100, 250, 500, 1000, 2000]
 
@@ -16,14 +16,29 @@ const itemVariants = {
   show: { opacity: 1, y: 0, transition: { duration: 0.22, ease: EASE_OUT } },
 }
 
+function matchesPreset(config: SimConfig, preset: SimConfig): boolean {
+  return (Object.keys(preset) as Array<keyof SimConfig>).every((k) => config[k] === preset[k])
+}
+
 interface ControlsProps {
   config: SimConfig
+  paused: boolean
   onChange: (patch: Partial<SimConfig>) => void
+  onPreset: (config: SimConfig) => void
+  onTogglePause: () => void
   onRestart: () => void
   onReseed: () => void
 }
 
-export function Controls({ config, onChange, onRestart, onReseed }: ControlsProps) {
+export function Controls({
+  config,
+  paused,
+  onChange,
+  onPreset,
+  onTogglePause,
+  onRestart,
+  onReseed,
+}: ControlsProps) {
   const [seedText, setSeedText] = useState(String(config.seed))
   const reduced = useReducedMotion() === true
 
@@ -50,6 +65,23 @@ export function Controls({ config, onChange, onRestart, onReseed }: ControlsProp
       initial={reduced ? false : 'hidden'}
       animate="show"
     >
+      <motion.fieldset className="segmented-group" variants={itemVariants}>
+        <legend>Classroom presets</legend>
+        <div className="preset-row">
+          {PRESETS.map((preset) => (
+            <button
+              key={preset.label}
+              type="button"
+              className={matchesPreset(config, preset.config) ? 'preset preset-active' : 'preset'}
+              title={preset.note}
+              onClick={() => onPreset(preset.config)}
+            >
+              {preset.label}
+            </button>
+          ))}
+        </div>
+      </motion.fieldset>
+
       <motion.fieldset className="segmented-group" variants={itemVariants}>
         <legend>Distribution</legend>
         <div className="segmented">
@@ -177,6 +209,9 @@ export function Controls({ config, onChange, onRestart, onReseed }: ControlsProp
             }}
           />
         </label>
+        <button type="button" onClick={onTogglePause}>
+          {paused ? 'Resume' : 'Pause'}
+        </button>
         <button type="button" onClick={onRestart}>
           Restart
         </button>

@@ -9,19 +9,32 @@ import { formatReadout } from './viz/scales.ts'
 function App() {
   const [config, setConfig] = useState<SimConfig>(DEFAULT_CONFIG)
   const [restartToken, setRestartToken] = useState(0)
+  const [paused, setPaused] = useState(false)
   const [readout, setReadout] = useState<Readout | null>(null)
 
   const handleChange = useCallback((patch: Partial<SimConfig>) => {
     setConfig((current) => ({ ...current, ...patch }))
   }, [])
 
+  const handlePreset = useCallback((preset: SimConfig) => {
+    setConfig(preset)
+    setPaused(false)
+    setRestartToken((token) => token + 1)
+  }, [])
+
+  const handleTogglePause = useCallback(() => {
+    setPaused((value) => !value)
+  }, [])
+
   const handleRestart = useCallback(() => {
+    setPaused(false)
     setRestartToken((token) => token + 1)
   }, [])
 
   const handleReseed = useCallback(() => {
     /* Seeds stay visible and re-enterable, so a reseed just picks a fresh
        small number from the clock rather than touching Math.random. */
+    setPaused(false)
     setConfig((current) => ({ ...current, seed: Date.now() % 1_000_000 }))
   }, [])
 
@@ -62,7 +75,12 @@ function App() {
               </li>
             )}
           </ul>
-          <ConvergenceCanvas config={config} restartToken={restartToken} onReadout={setReadout} />
+          <ConvergenceCanvas
+            config={config}
+            restartToken={restartToken}
+            paused={paused}
+            onReadout={setReadout}
+          />
           <dl className="readouts">
             <div>
               <dt>n</dt>
@@ -89,7 +107,10 @@ function App() {
         <Explainer />
         <Controls
           config={config}
+          paused={paused}
           onChange={handleChange}
+          onPreset={handlePreset}
+          onTogglePause={handleTogglePause}
           onRestart={handleRestart}
           onReseed={handleReseed}
         />
@@ -97,7 +118,7 @@ function App() {
       <footer className="colophon">
         <p>
           Built by <a href="https://github.com/CameronScarpati">Cameron Scarpati</a> as a
-          portfolio project. <a href="https://github.com/CameronScarpati/cauchy-schwarz-divergence">
+          portfolio project. <a href="https://github.com/CameronScarpati/cauchy-convergence">
             Source on GitHub
           </a>
           .

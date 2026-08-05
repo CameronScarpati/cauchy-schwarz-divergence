@@ -96,16 +96,25 @@ interface ConvergenceCanvasProps {
   config: SimConfig
   /* Bump to replay the current seed from sample zero. */
   restartToken?: number
+  /* Freezes sampling and the replay countdown; drawing still responds to
+     resize and theme changes. */
+  paused?: boolean
   onReadout?: (readout: Readout) => void
 }
 
-export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: ConvergenceCanvasProps) {
+export function ConvergenceCanvas({
+  config,
+  restartToken = 0,
+  paused = false,
+  onReadout,
+}: ConvergenceCanvasProps) {
   const wrapperRef = useRef<HTMLDivElement>(null)
   const bgRef = useRef<HTMLCanvasElement>(null)
   const fgRef = useRef<HTMLCanvasElement>(null)
 
   const configRef = useRef(config)
   const onReadoutRef = useRef(onReadout)
+  const pausedRef = useRef(paused)
   const simRef = useRef<SimState | null>(null)
   const viewRef = useRef<ViewState | null>(null)
   const dirtyRef = useRef(false)
@@ -116,6 +125,7 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
   useEffect(() => {
     configRef.current = config
     onReadoutRef.current = onReadout
+    pausedRef.current = paused
   })
 
   /* All state the loop touches lives in refs; these helpers close over the
@@ -321,6 +331,10 @@ export function ConvergenceCanvas({ config, restartToken = 0, onReadout }: Conve
     const frame = (dt: number) => {
       const sim = simRef.current
       if (!sim) return
+      if (pausedRef.current) {
+        if (dirtyRef.current) renderFrame()
+        return
+      }
       const cfg = configRef.current
       if (sim.count < cfg.maxSamples) {
         doneAtRef.current = null

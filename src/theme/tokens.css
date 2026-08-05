@@ -1,6 +1,5 @@
 /*
  * Design tokens for the Cauchy convergence demo.
- * Source of truth: .claude/skills/frontend-design/references/design-tokens.md
  * Light values live on :root; dark values switch via data-theme on <html>.
  */
 
