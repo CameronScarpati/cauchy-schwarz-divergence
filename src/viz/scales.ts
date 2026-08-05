@@ -1,0 +1,75 @@
+import { scaleLinear, scaleSymlog } from 'd3-scale'
+
+export type YMode = 'symlog' | 'linear'
+
+/*
+ * Minimal structural view of a d3 continuous scale so draw code depends on
+ * math only, never on d3's DOM-facing helpers.
+ */
+export interface NumericScale {
+  (value: number): number
+  domain(): number[]
+  ticks(count?: number): number[]
+}
+
+/* Both y modes clamp to their domain; anything outside is pinned to the
+   edge by the scale and reported through isOffScale for annotation. */
+export const SYMLOG_LIMIT = 1e6
+
+export function makeXScale(maxSamples: number, range: [number, number]): NumericScale {
+  return scaleLinear()
+    .domain([1, Math.max(2, maxSamples)])
+    .range(range)
+}
+
+export function makeYScale(
+  mode: YMode,
+  center: number,
+  gamma: number,
+  range: [number, number],
+): NumericScale {
+  if (mode === 'symlog') {
+    /* The symlog constant is tuned near the scale parameter so typical
+       draws render linearly and only tail spikes compress. */
+    return scaleSymlog()
+      .domain([-SYMLOG_LIMIT, SYMLOG_LIMIT])
+      .constant(Math.max(gamma, 0.01))
+      .range(range)
+      .clamp(true)
+  }
+  const span = 10 * gamma
+  return scaleLinear()
+    .domain([center - span, center + span])
+    .range(range)
+    .clamp(true)
+}
+
+export function isOffScale(scale: NumericScale, value: number): boolean {
+  const [d0, d1] = scale.domain()
+  return value < Math.min(d0, d1) || value > Math.max(d0, d1)
+}
+
+/* Symlog's own ticks are unreadable; signed decades are the honest labels
+   for a log-compressed axis. Linear mode defers to d3's nice ticks. */
+export function yTickValues(mode: YMode, scale: NumericScale): number[] {
+  if (mode === 'linear') return scale.ticks(7)
+  const decades = [1, 10, 100, 1e4, 1e6].filter((d) => d <= SYMLOG_LIMIT)
+  return [...decades.map((d) => -d).reverse(), 0, ...decades]
+}
+
+export function formatTick(value: number): string {
+  if (value === 0) return '0'
+  const abs = Math.abs(value)
+  if (abs >= 1e4) {
+    return `${value < 0 ? '-' : ''}1e${Math.round(Math.log10(abs))}`
+  }
+  if (Number.isInteger(value)) return String(value)
+  return String(Number(value.toPrecision(3)))
+}
+
+export function formatReadout(value: number): string {
+  if (Number.isNaN(value)) return 'n/a'
+  const abs = Math.abs(value)
+  if (abs >= 1e4 || (abs > 0 && abs < 1e-2)) return value.toExponential(2)
+  return value.toFixed(3)
+}
