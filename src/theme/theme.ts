@@ -18,3 +18,9 @@ export function systemTheme(): ThemeName {
 export function applySystemTheme(): void {
   setTheme(systemTheme())
 }
+
+/* Canvas code cannot use CSS custom properties directly, so it reads the
+   computed token values off the themed root element. */
+export function readToken(name: string, el: Element = document.documentElement): string {
+  return getComputedStyle(el).getPropertyValue(name).trim()
+}
