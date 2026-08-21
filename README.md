@@ -1,5 +1,7 @@
 # Cauchy Convergence
 
+[![CI status](https://github.com/CameronScarpati/cauchy-convergence/actions/workflows/ci.yml/badge.svg)](https://github.com/CameronScarpati/cauchy-convergence/actions/workflows/ci.yml)
+
 An interactive look at a distribution that breaks a rule most people take for granted: the average of many samples does not always settle down.
 
 ![The demo in light mode. One Cauchy draw of -2200 knocks the running mean off the chart, and thousands of samples later it still has not recovered, while the running median stays locked on the location line.](docs/hero-light.png)
