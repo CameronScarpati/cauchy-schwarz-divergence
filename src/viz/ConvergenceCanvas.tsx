@@ -35,6 +35,7 @@ import {
   type NumericScale,
 } from './scales.ts'
 import { useAnimationLoop } from './useAnimationLoop.ts'
+import { watchDevicePixelRatio } from './watchDevicePixelRatio.ts'
 
 interface RunState {
   rng: Rng
@@ -405,6 +406,7 @@ export function ConvergenceCanvas({
     }
     const resizeObserver = new ResizeObserver(redraw)
     resizeObserver.observe(wrapper)
+    const stopDprWatch = watchDevicePixelRatio(redraw)
     const themeObserver = new MutationObserver(redraw)
     themeObserver.observe(document.documentElement, {
       attributes: true,
@@ -412,6 +414,7 @@ export function ConvergenceCanvas({
     })
     return () => {
       resizeObserver.disconnect()
+      stopDprWatch()
       themeObserver.disconnect()
     }
   }, [helpers])
